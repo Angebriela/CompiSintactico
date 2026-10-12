@@ -1,0 +1,29 @@
+MAIN
+    BEGIN
+        x:y:z:suma ALLOCATE;
+        INPUT x;
+        INPUT y;
+        z:=1+x;
+        IF(x<y) THEN
+            BEGIN
+                z:=x+y;
+            END
+        ELSE
+            BEGIN
+                z:=0;
+            END
+        OUTPUT z;
+
+        DO
+            total := total + 1;
+        WHILE(x < 25 AND x >0)
+
+        FOR i := 1 to 5 do
+            BEGIN
+                total := total + 1;
+            END
+        FOR i := 1 to variable do
+            BEGIN
+                total := total + 1;
+            END
+    END
