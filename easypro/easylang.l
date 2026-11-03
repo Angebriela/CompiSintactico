@@ -1,6 +1,6 @@
 %{
 #include <stdio.h>
-#include "easylang.tab.h"
+#include "Easylang.tab.h"
 %}
 
 %option yylineno
@@ -37,9 +37,13 @@
 "***"[^*\n]*"***"   {return COMENTARIO;}
 [ \t\n]+            {}
 [a-zA-Z][a-zA-Z0-9]* {return IDENTIFICADOR;}
-[0-9]+              {return VALOR_INT;}
+-?[0-9]+              {return VALOR_INT;}
 .                   {return INVALIDO;}    
 %%
+
+int yywrap(void){
+    return 1;
+}
 
 int yywrap(void){
     return 1;
