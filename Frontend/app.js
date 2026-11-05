@@ -1,11 +1,3 @@
-/**
- * Muestra texto en uno de los visores (solo lectura), con números de línea.
- * idPanel: "codigoFuente", "codigoTresDir" o "codigoNasm"
- *
- * Cuando tengas el resultado del compilador, solo llama por ejemplo:
- *   mostrarCodigo("codigoTresDir", textoTresDirecciones);
- *   mostrarCodigo("codigoNasm", textoNasm);
- */
 function mostrarCodigo(idPanel, texto) {
     const code = document.querySelector(`#${idPanel} code`);
     code.replaceChildren();
@@ -19,8 +11,8 @@ function mostrarCodigo(idPanel, texto) {
     }
 }
 
-// ===== Carga del archivo fuente =====
-// ===== Editor del archivo fuente (Abrir, Editar, Guardar) =====
+// Carga del archivo fuente
+// Editor del archivo fuente (Abrir, Editar, Guardar)
 const editor = document.getElementById("editorFuente");
 const numerosLinea = document.getElementById("numerosLinea");
 const entrada = document.getElementById("archivoEntrada");
@@ -28,9 +20,10 @@ const nombreArchivo = document.getElementById("nombreArchivo");
 
 const tiposEl = [{ description: "Archivo EasyLang", accept: { "text/plain": [".el"] } }];
 let nombreActual = "sin_titulo.el";
-let manejadorArchivo = null;   // permite guardar sobre el mismo archivo (Chrome/Edge)
+let manejadorArchivo = null;   // permite guardar sobre el mismo archivo
 let hayCambios = false;
 
+//numeros de lineas
 function actualizarNumeros() {
     const total = editor.value.split("\n").length;
     let numeros = "";
@@ -39,10 +32,12 @@ function actualizarNumeros() {
     numerosLinea.scrollTop = editor.scrollTop;
 }
 
+//nombre del archivo en el titulo de la pestaña
 function actualizarTitulo() {
     nombreArchivo.textContent = (hayCambios ? "● " : "") + nombreActual;
 }
 
+//carga el contenido de un archivo limpiandolo en el editor
 function cargarEnEditor(nombre, texto) {
     nombreActual = nombre;
     editor.value = texto.replace(/\r\n?/g, "\n");
@@ -51,13 +46,14 @@ function cargarEnEditor(nombre, texto) {
     actualizarTitulo();
 }
 
+//Validacion de extension .el
 function esArchivoEl(nombre) {
     if (nombre.toLowerCase().endsWith(".el")) return true;
     alert("Selecciona un archivo con extensión .el");
     return false;
 }
 
-// ---- Abrir ----
+// Abrir archivo
 document.getElementById("botonAbrir").addEventListener("click", async () => {
     if (hayCambios && !confirm("Hay cambios sin guardar. ¿Abrir otro archivo?")) return;
 
@@ -69,10 +65,10 @@ document.getElementById("botonAbrir").addEventListener("click", async () => {
             manejadorArchivo = handle;
             cargarEnEditor(archivo.name, await archivo.text());
         } catch (e) {
-            if (e.name !== "AbortError") entrada.click();   // respaldo
+            if (e.name !== "AbortError") entrada.click(); 
         }
     } else {
-        entrada.click();   // navegadores sin File System Access API
+        entrada.click(); 
     }
 });
 
@@ -84,7 +80,7 @@ entrada.addEventListener("change", async () => {
     cargarEnEditor(archivo.name, await archivo.text());
 });
 
-// ---- Guardar ----
+// Guardar archivo
 function descargarArchivo(contenido) {
     const nombre = nombreActual.toLowerCase().endsWith(".el") ? nombreActual : nombreActual + ".el";
     const url = URL.createObjectURL(new Blob([contenido], { type: "text/plain" }));
@@ -95,7 +91,7 @@ function descargarArchivo(contenido) {
     URL.revokeObjectURL(url);
 }
 
-// Siempre abre el cuadro "Guardar como" para elegir carpeta y nombre
+// abrir "Guardar como" para elegir carpeta y nombre
 async function guardarArchivo() {
     const contenido = editor.value;
     try {
@@ -109,11 +105,11 @@ async function guardarArchivo() {
             await escritor.write(contenido);
             await escritor.close();
         } else {
-            descargarArchivo(contenido);   // navegadores sin File System Access API
+            descargarArchivo(contenido);
         }
     } catch (e) {
-        if (e.name === "AbortError") return;   // el usuario canceló
-        descargarArchivo(contenido);           // respaldo: descarga normal
+        if (e.name === "AbortError") return;   
+        descargarArchivo(contenido);           
     }
     hayCambios = false;
     actualizarTitulo();
@@ -121,7 +117,7 @@ async function guardarArchivo() {
 
 document.getElementById("botonGuardar").addEventListener("click", guardarArchivo);
 
-// ---- Limpiar ----
+//limpiar 
 document.getElementById("botonLimpiar").addEventListener("click", () => {
     if (hayCambios && !confirm("Hay cambios sin guardar. ¿Limpiar de todos modos?")) return;
     manejadorArchivo = null;
@@ -141,13 +137,14 @@ editor.addEventListener("scroll", () => {
     numerosLinea.scrollTop = editor.scrollTop;
 });
 
+//Para tabular dentro del esitor de texto y que no se cambie a otra ventana
 editor.addEventListener("keydown", (e) => {
-    if (e.key === "Tab") {                       // Tab inserta tabulación
+    if (e.key === "Tab") {                     
         e.preventDefault();
         editor.setRangeText("\t", editor.selectionStart, editor.selectionEnd, "end");
         editor.dispatchEvent(new Event("input"));
     }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {   // Ctrl+S
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {   
         e.preventDefault();
         guardarArchivo();
     }
@@ -157,23 +154,13 @@ window.addEventListener("beforeunload", (e) => {
     if (hayCambios) e.preventDefault();
 });
 
-// Para el botón "Generar código": obtenerCodigoFuente() devuelve lo que hay en el editor
+// devuelve lo que hay en el editor cuando se presiona generar codigo
 function obtenerCodigoFuente() {
     return editor.value;
 }
 
-// ===== CAMBIO: Generación de código (botón "Generar código") =====
-// Antes el botón #botonGenerar no tenía ningún evento. Ahora envía el contenido del
-// editor (el archivo .el abierto o lo escrito a mano) a servidor.js, que ejecuta el
-// compilador hecho con Easylang.y y Easylang.l, y muestra lo que devuelve:
-//   - código de tres direcciones  -> panel #codigoTresDir
-//   - código NASM                 -> panel #codigoNasm
-//   - errores léxicos/sintácticos -> panel #errores
 const URL_COMPILAR = "http://localhost:3000/compilar";
 const botonGenerar = document.getElementById("botonGenerar");
-
-// CAMBIO: guarda el código fuente que produjo el NASM mostrado. "Ejecutar ASM" lo usa
-// para saber cuántos INPUT pedir, aunque el editor se haya modificado después.
 let fuenteCompilada = "";
 
 botonGenerar.addEventListener("click", async () => {
@@ -183,14 +170,14 @@ botonGenerar.addEventListener("click", async () => {
         return;
     }
 
-    // Se limpian las salidas anteriores para no mezclar resultados de otro programa
+    // limpian las salidas anteriores
     mostrarCodigo("codigoTresDir", "Compilando...");
     mostrarCodigo("codigoNasm", "Compilando...");
     mostrarCodigo("ejecucion", "");
-    mostrarCodigo("codigoTDC", "");   // CAMBIO: también se limpia la salida del intérprete
+    mostrarCodigo("codigoTDC", ""); 
     mostrarCodigo("errores", "");
     fuenteCompilada = "";
-    botonGenerar.disabled = true;   // evita enviar dos veces mientras compila
+    botonGenerar.disabled = true;
 
     try {
         const respuesta = await fetch(URL_COMPILAR, {
@@ -206,8 +193,6 @@ botonGenerar.addEventListener("click", async () => {
             mostrarCodigo("errores", "Compilación exitosa: no se encontraron errores.");
             fuenteCompilada = fuente;
         } else {
-            // Con errores el compilador no genera archivos: los paneles quedan vacíos
-            // para que "Ejecutar ASM" no corra un código de una compilación anterior
             mostrarCodigo("codigoTresDir", "");
             mostrarCodigo("codigoNasm", "");
             mostrarCodigo("errores", datos.error);
@@ -223,29 +208,25 @@ botonGenerar.addEventListener("click", async () => {
     }
 });
 
-// ===== Ejecución del código NASM =====
-// El navegador no puede ejecutar NASM: lo envía a servidor.js, que ensambla, enlaza y corre el programa.
-const URL_EJECUTAR = "http://localhost:3000/ejecutar";
+// ejecución del código NASM
+const URL_EJECUTAR = "http://localhost:3000/ejecutar"; 
 
 const modalEntradas = new bootstrap.Modal(document.getElementById("modalEntradas"));
 const formEntradas = document.getElementById("formEntradas");
 const camposEntradas = document.getElementById("camposEntradas");
 const botonEjecutarAsm = document.getElementById("botonEjecutarAsm");
 
-// Texto de un visor de solo lectura (sin los números de línea)
 function obtenerTextoPanel(idPanel) {
     const lineas = document.querySelectorAll(`#${idPanel} .linea`);
     return Array.from(lineas, (linea) => linea.textContent).join("\n");
 }
 
-// Variables leídas con INPUT, en orden de aparición (sin contar comentarios *** ***)
+//para que no cuente lols INPUT  en comentarios
 function buscarLecturas(fuente) {
     const sinComentarios = fuente.replace(/\*\*\*[\s\S]*?\*\*\*/g, "");
     return Array.from(sinComentarios.matchAll(/\bINPUT\s+([A-Za-z][A-Za-z0-9]*)/g), (m) => m[1]);
 }
 
-// CAMBIO: la ventana de valores de INPUT ahora la usan dos botones ("Ejecutar ASM" y
-// "Ejecutar TDC"). accionPendiente guarda qué hacer con los valores al presionar "Ejecutar".
 let accionPendiente = null;
 
 botonEjecutarAsm.addEventListener("click", () => {
@@ -254,14 +235,10 @@ botonEjecutarAsm.addEventListener("click", () => {
         alert("Primero genera el código NASM.");
         return;
     }
-    // CAMBIO: antes el código para pedir las entradas estaba aquí; se movió a pedirEntradas()
     pedirEntradas((valores) => ejecutarAsm(asm, valores));
 });
 
-// CAMBIO: función nueva. Muestra un campo por cada INPUT del programa compilado y,
-// al confirmar, llama a "accion" con los valores. Sin INPUT llama a "accion" de inmediato.
 function pedirEntradas(accion) {
-    // CAMBIO: antes usaba editor.value; ahora el código que realmente se compiló
     const lecturas = buscarLecturas(fuenteCompilada);
     if (lecturas.length === 0) {
         accion([]);
@@ -314,7 +291,6 @@ formEntradas.addEventListener("submit", (e) => {
     }
     const valores = Array.from(camposEntradas.querySelectorAll("input"), (c) => c.value.trim());
     modalEntradas.hide();
-    // CAMBIO: antes siempre llamaba a ejecutarAsm(); ahora ejecuta la acción del botón que abrió la ventana
     if (accionPendiente) accionPendiente(valores);
     accionPendiente = null;
 });
@@ -347,10 +323,7 @@ async function ejecutarAsm(asm, valores) {
     }
 }
 
-// ===== CAMBIO: Ejecución del código de tres direcciones (intérprete) =====
-// Sección nueva. El botón "Ejecutar TDC" envía el código de tres direcciones del panel
-// #codigoTresDir a servidor.js, que lo ejecuta con interprete.c, y muestra la salida en
-// el panel #codigoTDC ("Ejecución de TDC"). Usa la misma ventana de valores de INPUT.
+//rjecución del código de tres direcciones
 const URL_INTERPRETAR = "http://localhost:3000/interpretar";
 const botonEjecutarTdc = document.getElementById("botonEjecutarTdc");
 
