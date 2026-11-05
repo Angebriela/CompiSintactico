@@ -1,12 +1,3 @@
-/* Interprete del codigo de tres direcciones de EasyLang.
-
-   Compilar: gcc interprete.c -o interprete
-   Ejecutar: ./interprete salida.tac
-
-   Primero guarda las lineas del archivo y la posicion de cada etiqueta.
-   Despues ejecuta una linea a la vez. La variable pc indica cual sigue,
-   y un salto solo cambia su valor. */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +10,7 @@
 #define MAX_NOMBRE  50
 #define MAX_PILA    1024
 
-/* ---------- Datos del programa ---------- */
+/* Datos del programa  */
 typedef struct {
     char nombre[MAX_NOMBRE];
     int32_t valor;
@@ -49,7 +40,7 @@ static void error(const char *mensaje, const char *detalle){
     exit(1);
 }
 
-/* ---------- Variables, etiquetas y pila ---------- */
+/*  Variables, etiquetas y pila  */
 /* Busca una variable. Si no existe la crea en 0, igual que section .bss */
 static Variable *buscarVariable(const char *nombre){
     for (int i = 0; i < totalVariables; i++)
@@ -78,7 +69,7 @@ static int32_t pop(void){
     return pila[--tope];
 }
 
-/* ---------- Lectura de operandos y operadores ---------- */
+/*  Lectura de operandos y operadores */
 static void leerNombre(const char **texto, char *nombre){
     int n = 0;
     while (isalnum((unsigned char)**texto)) {
@@ -110,7 +101,6 @@ static int32_t leerOperando(const char **texto){
     return buscarVariable(nombre)->valor;
 }
 
-/* Revisa primero los operadores largos para no confundir <= con < */
 static const char *leerOperador(const char **texto){
     static const char *operadores[] = {
         "**", "<=", ">=", "==", "<>", "AND", "OR", "+", "-", "*", "/", "<", ">"
@@ -127,13 +117,11 @@ static const char *leerOperador(const char **texto){
     return "";
 }
 
-/* ---------- Operaciones ---------- */
-/* Se multiplica en uint32_t para desbordar igual que imul en 32 bits */
+/*  Operaciones  */
 static int32_t multiplicar(int32_t a, int32_t b){
     return (int32_t)((uint32_t)a * (uint32_t)b);
 }
 
-/* En 2**x, el 2 es el exponente y x la base */
 static int32_t potencia(int32_t exponente, int32_t base){
     int32_t resultado = 1;
     for (int32_t i = exponente; i > 0; i--)
@@ -155,7 +143,6 @@ static int32_t operar(int32_t a, const char *op, int32_t b){
     if (strcmp(op, "==")  == 0) return a == b;
     if (strcmp(op, "<>")  == 0) return a != b;
 
-    /* Solo queda la division */
     if (b == 0) error("division entre cero", "");
     if (a == INT32_MIN && b == -1) error("resultado de la division fuera de rango", "");
     return a / b;
@@ -179,8 +166,7 @@ static int32_t leerEntero(void){
     return (int32_t)(negativo ? 0u - numero : numero);
 }
 
-/* ---------- Carga del archivo ---------- */
-/* Quita espacios, salto de linea y el ; final */
+/* Carga del archivo  */
 static void limpiar(char *linea){
     size_t inicio = strspn(linea, " \t");
     size_t largo;
@@ -218,7 +204,7 @@ static void cargarPrograma(const char *nombreArchivo){
     fclose(archivo);
 }
 
-/* ---------- Ejecucion ---------- */
+/* Ejecucion */
 static void asignar(const char *destino, const char *expresion){
     int32_t izquierda = leerOperando(&expresion);
     int32_t resultado = izquierda;
