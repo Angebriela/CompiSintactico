@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include "generador.h"
 
-/* ---------- Tabla de variables y temporales ---------- */
+/* Tabla de variables y temporales */
 #define MAX_NOMBRES 2000
 
 static char variables[MAX_NOMBRES][50];
@@ -12,7 +12,7 @@ static int  totalVariables = 0;
 static char temporales[MAX_NOMBRES][50];
 static int  totalTemporales = 0;
 
-static FILE *codigo;           /* guarda section .text hasta conocer todos los temporales */
+static FILE *codigo;          
 static int usaInput = 0;
 static int usaOutput = 0;
 
@@ -37,7 +37,7 @@ void registrarVariable(const char *nombre){
 void nuevaTem(char *temporal){
     static int actual = 1;
     do {
-        sprintf(temporal, "t%d", actual++);   /* no reutiliza una variable del programa llamada t1 */
+        sprintf(temporal, "t%d", actual++);   
     } while (esVariable(temporal));
     if (totalTemporales == MAX_NOMBRES) { fprintf(stderr, "Error: demasiados temporales\n"); exit(1); }
     strcpy(temporales[totalTemporales++], temporal);
@@ -48,8 +48,7 @@ void nuevaEtq(char *etiqueta){
     sprintf(etiqueta, "l%d", actual++);
 }
 
-/* Las variables llevan v_ porque en EasyLang un nombre no puede tener guion bajo.
-   Asi una variable llamada add, ax, t1 o l1 nunca choca con NASM. */
+
 static const char *ref(const char *nombre){
     static char texto[64];
     if (isdigit((unsigned char)nombre[0]) || nombre[0] == '-') strcpy(texto, nombre);
@@ -58,11 +57,10 @@ static const char *ref(const char *nombre){
     return texto;
 }
 
-/* ---------- Generacion de codigo ---------- */
+/* Generacion de codigo*/
 void genAsignacion(const char *destino, const char *valor){
     registrarVariable(destino);
     printf("     %s=%s;\n", destino, valor);
-    fprintf(codigo, "    ; %s=%s\n", destino, valor);
     fprintf(codigo, "    mov eax, %s\n", ref(valor));
     fprintf(codigo, "    mov %s, eax\n", ref(destino));
 }
@@ -83,8 +81,6 @@ void genOperacion(const char *destino, const char *izq, const char *op, const ch
     const char *separador = isalpha((unsigned char)op[0]) ? " " : "";
 
     printf("     %s=%s%s%s%s%s;\n", destino, izq, separador, op, separador, der);
-    fprintf(codigo, "    ; %s=%s%s%s%s%s\n", destino, izq, separador, op, separador, der);
-
     if (strcmp(op, "**") == 0) {            /* izq es el exponente y der la base */
         int n = ++potencias;
         fprintf(codigo, "    mov ecx, %s\n", ref(izq));
@@ -119,7 +115,6 @@ void genInput(const char *variable){
     registrarVariable(variable);
     usaInput = 1;
     printf("     call input;\n     pop %s;\n", variable);
-    fprintf(codigo, "    ; call input / pop %s\n", variable);
     fprintf(codigo, "    call input\n");
     fprintf(codigo, "    pop dword %s\n", ref(variable));
 }
@@ -128,7 +123,6 @@ void genOutput(const char *variable){
     registrarVariable(variable);
     usaOutput = 1;
     printf("     push %s;\n     call output;\n", variable);
-    fprintf(codigo, "    ; push %s / call output\n", variable);
     fprintf(codigo, "    push dword %s\n", ref(variable));
     fprintf(codigo, "    call output\n");
 }
@@ -157,22 +151,21 @@ void genIfnz(const char *condicion, const char *etiqueta){
     fprintf(codigo, "    jne %s\n", etiqueta);
 }
 
-/* ---------- Rutinas de entrada y salida ---------- */
+/* Rutinas de entrada y salida */
 /* input lee un entero por caracteres y lo deja en la pila */
 static const char *RUTINA_INPUT =
-    "\n; Lee un entero y lo deja en la pila\n"
     "input:\n"
-    "    xor esi, esi        ; numero leido\n"
-    "    xor edi, edi        ; 1 si es negativo\n"
-    "    xor ebp, ebp        ; 1 si ya hubo digitos\n"
+    "    xor esi, esi        \n"
+    "    xor edi, edi        \n"
+    "    xor ebp, ebp        \n"
     ".leer:\n"
-    "    mov eax, 3          ; syscall: sys_read\n"
-    "    mov ebx, 0          ; entrada estandar\n"
+    "    mov eax, 3          \n"
+    "    mov ebx, 0          \n"
     "    mov ecx, buffer\n"
-    "    mov edx, 1          ; un caracter\n"
+    "    mov edx, 1          \n"
     "    int 0x80\n"
     "    cmp eax, 1\n"
-    "    jl .fin             ; fin de la entrada\n"
+    "    jl .fin             \n"
     "    movzx eax, byte [buffer]\n"
     "    cmp eax, '-'\n"
     "    je .negativo\n"
@@ -190,31 +183,30 @@ static const char *RUTINA_INPUT =
     "    jmp .leer\n"
     ".separador:\n"
     "    cmp ebp, 0\n"
-    "    je .leer            ; ignora espacios antes del numero\n"
+    "    je .leer            \n"
     ".fin:\n"
     "    cmp edi, 0\n"
     "    je .guardar\n"
     "    neg esi\n"
     ".guardar:\n"
-    "    pop eax             ; direccion de retorno\n"
-    "    push esi            ; deja el numero en la pila\n"
+    "    pop eax             \n"
+    "    push esi            \n"
     "    jmp eax\n";
 
 /* output saca de la pila el numero y lo imprime */
 static const char *RUTINA_OUTPUT =
-    "\n; Saca un entero de la pila y lo imprime\n"
     "output:\n"
-    "    mov eax, [esp+4]    ; numero a imprimir\n"
-    "    mov esi, eax        ; guarda el signo\n"
+    "    mov eax, [esp+4]    \n"
+    "    mov esi, eax        \n"
     "    mov ebx, 10\n"
     "    mov ecx, buffer+15\n"
-    "    mov byte [ecx], 10  ; salto de linea\n"
+    "    mov byte [ecx], 10  \n"
     "    cmp eax, 0\n"
     "    jge .digito\n"
     "    neg eax\n"
     ".digito:\n"
     "    xor edx, edx\n"
-    "    div ebx             ; residuo en edx: ultimo digito\n"
+    "    div ebx             \n"
     "    add dl, '0'\n"
     "    dec ecx\n"
     "    mov [ecx], dl\n"
@@ -226,13 +218,13 @@ static const char *RUTINA_OUTPUT =
     "    mov byte [ecx], '-'\n"
     ".escribir:\n"
     "    mov edx, buffer+16\n"
-    "    sub edx, ecx        ; cantidad de caracteres\n"
-    "    mov eax, 4          ; syscall: sys_write\n"
-    "    mov ebx, 1          ; salida estandar\n"
+    "    sub edx, ecx        \n"
+    "    mov eax, 4          \n"
+    "    mov ebx, 1          \n"
     "    int 0x80\n"
-    "    ret 4               ; regresa y quita el numero de la pila\n";
+    "    ret 4               \n";
 
-/* ---------- Archivo .asm final ---------- */
+/* Archivo .asm final  */
 int escribirAsm(const char *nombre){
     int c;
     FILE *salida = fopen(nombre, "w");
@@ -250,9 +242,9 @@ int escribirAsm(const char *nombre){
     rewind(codigo);
     while ((c = fgetc(codigo)) != EOF) fputc(c, salida);
 
-    fprintf(salida, "\n    ; finalizar el programa\n");
-    fprintf(salida, "    mov eax, 1          ; syscall: sys_exit\n");
-    fprintf(salida, "    xor ebx, ebx        ; codigo de salida 0\n");
+    
+    fprintf(salida, "    mov eax, 1          \n");
+    fprintf(salida, "    xor ebx, ebx        \n");
     fprintf(salida, "    int 0x80\n");
 
     if (usaInput)  fputs(RUTINA_INPUT, salida);

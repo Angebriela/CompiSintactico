@@ -53,7 +53,6 @@ termino: termino MUL factor         { nuevaTem($$); genOperacion($$,$1,"*",$3); 
       | termino DIV factor          { nuevaTem($$); genOperacion($$,$1,"/",$3); }
       | factor                      { strcpy($$,$1); }
       ;
-/* En 2**x el 2 es el exponente y x es la base, como indica el enunciado */
 factor: operando POTENCIA operando  { nuevaTem($$); genOperacion($$,$1,"**",$3); }
       | operando                    { strcpy($$,$1); }
       ;
@@ -75,10 +74,9 @@ bloque_instrucciones: instruccion bloque_instrucciones | instruccion
       ;
 
 /* Control de flujo  */
-/* $<cadena>7 y $<cadena>10 son las etiquetas guardadas por las acciones intermedias */
 sentencia_if: IF PARENTESIS_IZQ condiciones PARENTESIS_DER THEN BEGIN1
         { nuevaEtq($<cadena>$); genIfz($3,$<cadena>$); }
-        bloque_instrucciones END
+        bloque_instrucciones END    
         { nuevaEtq($<cadena>$); genGoto($<cadena>$); genEtiqueta($<cadena>7); }
         ELSE BEGIN1 bloque_instrucciones END
         { genEtiqueta($<cadena>10); }
@@ -109,8 +107,7 @@ void yyerror(char *mensaje){
     fprintf(stderr, "Error: %s en la linea %i cerca de %s\n", mensaje, yylineno, yytext);
 }
 
-/* Uso: ./easylang programa.el salida.asm salida.tac
-   Sin argumentos lee la entrada estandar y escribe salida.asm y salida.tac */
+/*escribe salida.asm y salida.tac */
 int main(int argc, char **argv){
     extern FILE *yyin;
     const char *nombreSalida = (argc > 2) ? argv[2] : "salida.asm";
@@ -127,14 +124,13 @@ int main(int argc, char **argv){
     if (!freopen(nombreTac, "w", stdout)) { perror(nombreTac); return 1; }
     resultado = yyparse();
     fflush(stdout);
-    dup2(pantalla, STDOUT_FILENO);     /* printf vuelve a la pantalla */
+    dup2(pantalla, STDOUT_FILENO);     
 
-    if (resultado != 0) {              /* con errores no se generan los archivos */
+    if (resultado != 0) {              
         remove(nombreTac);
         return 1;
     }
 
-    /* Muestra en pantalla el archivo generado */
     tac = fopen(nombreTac, "r");
     if (!tac) { perror(nombreTac); return 1; }
     while ((c = fgetc(tac)) != EOF) putchar(c);
