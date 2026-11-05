@@ -1,0 +1,160 @@
+/* ===== Paleta (tomada del diseño) ===== */
+:root {
+    --morado: #62305f;
+    --rosa: #fcc1e4;
+    --rosa-claro: #fdd0ea;
+    --verde: #5aaba2;
+    --lila: #a999d5;
+    --texto: #1e1e1e;
+}
+
+body {
+    background-color: var(--rosa);
+    color: var(--texto);
+}
+
+/* ===== Encabezado ===== */
+.barra-principal {
+    background-color: var(--morado);
+}
+
+.logo-umes {
+    height: 42px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 2px 6px;
+}
+
+.titulo-seccion {
+    font-size: 1.9rem;
+    font-weight: 700;
+}
+
+/* ===== Botón subir archivo ===== */
+.btn-subir {
+    background: #fff;
+    border: 3px solid var(--lila);
+    border-radius: 999px;
+    padding: .45rem 1.5rem;
+}
+
+.btn-subir:hover,
+.btn-subir:focus-visible {
+    background: var(--morado);
+    border-color: var(--lila);
+    color: #fff;
+}
+
+/* ===== Paneles de código ===== */
+.panel-codigo {
+    background: #fff;
+    border: 3px solid var(--lila);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .75rem 1.25rem;
+    border-bottom: 1px solid #e5e5e5;
+    font-weight: 600;
+}
+
+/* Visor de solo lectura */
+.codigo {
+    flex: 1 1 auto;
+    margin: 0;
+    padding: 1rem 1.25rem;
+    overflow: auto;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .9rem;
+    line-height: 1.5;
+    tab-size: 4;
+}
+
+.panel-fuente .codigo {
+    min-height: 420px;
+    max-height: 70vh;
+}
+
+.panel-salida .codigo {
+    min-height: 200px;
+    max-height: 35vh;
+}
+
+.codigo code {
+    display: block;
+    color: inherit;          /* quita el rosa que Bootstrap pone a <code> */
+    counter-reset: linea;
+}
+
+/* Cada línea con su número */
+.linea {
+    display: block;
+    white-space: pre;
+    min-height: 1.5em;
+}
+
+.linea::before {
+    counter-increment: linea;
+    content: counter(linea);
+    display: inline-block;
+    width: 2.5em;
+    margin-right: 1em;
+    padding-right: .5em;
+    text-align: right;
+    color: #9aa5a4;
+    border-right: 1px solid #e5e5e5;
+    user-select: none;       /* al copiar no se copian los números */
+}
+
+.vacio {
+    color: #6c757d;
+    font-family: var(--bs-body-font-family);
+    white-space: normal;
+}
+
+/* ===== Pie ===== */
+.pie {
+    background-color: var(--rosa-claro);
+}
+
+/* ===== Editor del archivo fuente ===== */
+.editor {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 420px;
+    max-height: 70vh;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.editor-numeros {
+    width: 3.5em;
+    padding: 1rem .6rem 2rem 0;
+    text-align: right;
+    white-space: pre;
+    overflow: hidden;
+    color: #9aa5a4;
+    background: #fafafa;
+    border-right: 1px solid #e5e5e5;
+    user-select: none;
+}
+
+.editor-texto {
+    flex: 1 1 auto;
+    padding: 1rem;
+    border: 0;
+    outline: 0;
+    resize: none;
+    font: inherit;
+    line-height: inherit;
+    white-space: pre;
+    overflow: auto;
+    tab-size: 4;
+}
