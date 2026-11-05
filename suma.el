@@ -1,0 +1,8 @@
+MAIN
+BEGIN
+a:b:r ALLOCATE;
+INPUT a;
+INPUT b;
+r := a + b;
+OUTPUT r;
+END
