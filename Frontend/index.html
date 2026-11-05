@@ -12,7 +12,6 @@
 
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- Encabezado  -->
     <header>
         <nav class="navbar navbar-expand-md navbar-dark barra-principal" aria-label="Navegación principal">
             <div class="container">
@@ -44,11 +43,10 @@
         </nav>
     </header>
 
-    <!-- Contenido principal -->
     <main class="container flex-grow-1 py-3">
         <div class="row g-4">
 
-            <!-- Columna izquierda: archivo fuente -->
+            <!-- Columna izquierda-->
             <section class="col-lg-6 d-flex flex-column gap-4">
             <h1 class="titulo-seccion mb-3">Archivo .el</h1>
 
@@ -72,7 +70,7 @@
             </div>
             </section>
 
-            <!-- Columna derecha: salidas del compilador -->
+            <!-- Columna derecha -->
             <section class="col-lg-6 d-flex flex-column gap-4">
                 <h1 class="titulo-seccion mb-3">Salidas del compilador</h1>
                 <div>
@@ -88,7 +86,6 @@
                     <pre class="codigo" id="codigoTresDir"><code><span class="vacio">Aquí aparecerá el código de tres direcciones.</span></code></pre>
                 </div>
 
-                <!-- boton que ejecuta el codigo de tres direcciones -->
                 <div>
                     <button type="button" class="btn btn-subir w-100" id="botonEjecutarTdc">
                         Ejecutar TDC
@@ -99,7 +96,6 @@
                     <div class="panel-encabezado">
                         <span>Ejecución de TDC</span>
                     </div>
-                    <!-- CAMBIO: el texto decía "Aquí aparecerá el código TDC."; aquí se muestra la salida del intérprete -->
                     <pre class="codigo" id="codigoTDC"><code><span class="vacio">Aquí aparecerá la salida del intérprete de TDC.</span></code></pre>
                 </div>
             </section>
@@ -148,12 +144,11 @@
         </div>
     </main>
 
-    <!-- ===== Pie de página ===== -->
     <footer class="pie text-center py-3">
         <p class="mb-0">IDE EasyLang · Compiladores · Universidad Mesoamericana</p>
     </footer>
 
-    <!-- ===== Ventana emergente de integrantes ===== -->
+    <!--Ventana emegente de integrantes-->
     <div class="modal fade" id="modalIntegrantes" tabindex="-1" aria-labelledby="tituloIntegrantes" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -177,7 +172,7 @@
         </div>
     </div>
 
-    <!-- ===== Ventana emergente para los valores de INPUT ===== -->
+    <!--Ventana emergente para INPUT-->
     <div class="modal fade" id="modalEntradas" tabindex="-1" aria-labelledby="tituloEntradas" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <form class="modal-content" id="formEntradas" novalidate>

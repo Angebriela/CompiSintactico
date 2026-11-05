@@ -1,4 +1,4 @@
-/* ===== Paleta (tomada del diseño) ===== */
+/*Paleta */
 :root {
     --morado: #62305f;
     --rosa: #fcc1e4;
@@ -13,7 +13,6 @@ body {
     color: var(--texto);
 }
 
-/* ===== Encabezado ===== */
 .barra-principal {
     background-color: var(--morado);
 }
@@ -30,7 +29,6 @@ body {
     font-weight: 700;
 }
 
-/* ===== Botón subir archivo ===== */
 .btn-subir {
     background: #fff;
     border: 3px solid var(--lila);
@@ -45,7 +43,6 @@ body {
     color: #fff;
 }
 
-/* ===== Paneles de código ===== */
 .panel-codigo {
     background: #fff;
     border: 3px solid var(--lila);
@@ -64,7 +61,6 @@ body {
     font-weight: 600;
 }
 
-/* Visor de solo lectura */
 .codigo {
     flex: 1 1 auto;
     margin: 0;
@@ -88,11 +84,10 @@ body {
 
 .codigo code {
     display: block;
-    color: inherit;          /* quita el rosa que Bootstrap pone a <code> */
+    color: inherit;         
     counter-reset: linea;
 }
 
-/* Cada línea con su número */
 .linea {
     display: block;
     white-space: pre;
@@ -109,7 +104,7 @@ body {
     text-align: right;
     color: #9aa5a4;
     border-right: 1px solid #e5e5e5;
-    user-select: none;       /* al copiar no se copian los números */
+    user-select: none;
 }
 
 .vacio {
@@ -118,12 +113,11 @@ body {
     white-space: normal;
 }
 
-/* ===== Pie ===== */
+
 .pie {
     background-color: var(--rosa-claro);
 }
 
-/* ===== Editor del archivo fuente ===== */
 .editor {
     display: flex;
     flex: 1 1 auto;
